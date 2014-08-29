@@ -26,20 +26,52 @@ static void pack_4444(bleh *args) {
     int src_stride[4] = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            dstp[x * 4 + 0] = srcp[0][x];
-            dstp[x * 4 + 1] = srcp[1][x];
-            dstp[x * 4 + 2] = srcp[2][x];
-            dstp[x * 4 + 3] = srcp[3][x];
+    if (srcp[0] == NULL) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[x * 4 + 0] = 0;
+                dstp[x * 4 + 1] = srcp[1][x];
+                dstp[x * 4 + 2] = srcp[2][x];
+                dstp[x * 4 + 3] = srcp[3][x];
+            }
+
+            srcp[1] += src_stride[1] / sizeof(T);
+            srcp[2] += src_stride[2] / sizeof(T);
+            srcp[3] += src_stride[3] / sizeof(T);
+
+            dstp += dst_stride / sizeof(T);
         }
+    } else if (srcp[3] == NULL) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[x * 4 + 0] = srcp[0][x];
+                dstp[x * 4 + 1] = srcp[1][x];
+                dstp[x * 4 + 2] = srcp[2][x];
+                dstp[x * 4 + 3] = 0;
+            }
 
-        srcp[0] += src_stride[0] / sizeof(T);
-        srcp[1] += src_stride[1] / sizeof(T);
-        srcp[2] += src_stride[2] / sizeof(T);
-        srcp[3] += src_stride[3] / sizeof(T);
+            srcp[0] += src_stride[0] / sizeof(T);
+            srcp[1] += src_stride[1] / sizeof(T);
+            srcp[2] += src_stride[2] / sizeof(T);
 
-        dstp += dst_stride / sizeof(T);
+            dstp += dst_stride / sizeof(T);
+        }
+    } else {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[x * 4 + 0] = srcp[0][x];
+                dstp[x * 4 + 1] = srcp[1][x];
+                dstp[x * 4 + 2] = srcp[2][x];
+                dstp[x * 4 + 3] = srcp[3][x];
+            }
+
+            srcp[0] += src_stride[0] / sizeof(T);
+            srcp[1] += src_stride[1] / sizeof(T);
+            srcp[2] += src_stride[2] / sizeof(T);
+            srcp[3] += src_stride[3] / sizeof(T);
+
+            dstp += dst_stride / sizeof(T);
+        }
     }
 }
 
@@ -55,20 +87,50 @@ static void unpack_4444(bleh *args) {
     int src_stride = args->src_stride[0];
     int dst_stride[4] = args->dst_stride;
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            dstp[0][x] = srcp[x * 4 + 0];
-            dstp[1][x] = srcp[x * 4 + 1];
-            dstp[2][x] = srcp[x * 4 + 2];
-            dstp[3][x] = srcp[x * 4 + 3];
+    if (dstp[0] == NULL) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[1][x] = srcp[x * 4 + 1];
+                dstp[2][x] = srcp[x * 4 + 2];
+                dstp[3][x] = srcp[x * 4 + 3];
+            }
+
+            srcp += src_stride / sizeof(T);
+
+            dstp[1] += dst_stride[1] / sizeof(T);
+            dstp[2] += dst_stride[2] / sizeof(T);
+            dstp[3] += dst_stride[3] / sizeof(T);
         }
+    } else if (dstp[3] == NULL) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[0][x] = srcp[x * 4 + 0];
+                dstp[1][x] = srcp[x * 4 + 1];
+                dstp[2][x] = srcp[x * 4 + 2];
+            }
 
-        srcp += src_stride / sizeof(T);
+            srcp += src_stride / sizeof(T);
 
-        dstp[0] += dst_stride[0] / sizeof(T);
-        dstp[1] += dst_stride[1] / sizeof(T);
-        dstp[2] += dst_stride[2] / sizeof(T);
-        dstp[3] += dst_stride[3] / sizeof(T);
+            dstp[0] += dst_stride[0] / sizeof(T);
+            dstp[1] += dst_stride[1] / sizeof(T);
+            dstp[2] += dst_stride[2] / sizeof(T);
+        }
+    } else {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dstp[0][x] = srcp[x * 4 + 0];
+                dstp[1][x] = srcp[x * 4 + 1];
+                dstp[2][x] = srcp[x * 4 + 2];
+                dstp[3][x] = srcp[x * 4 + 3];
+            }
+
+            srcp += src_stride / sizeof(T);
+
+            dstp[0] += dst_stride[0] / sizeof(T);
+            dstp[1] += dst_stride[1] / sizeof(T);
+            dstp[2] += dst_stride[2] / sizeof(T);
+            dstp[3] += dst_stride[3] / sizeof(T);
+        }
     }
 }
 
