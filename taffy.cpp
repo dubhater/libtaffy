@@ -5,8 +5,8 @@ typedef struct {
     int width[4];
     int height[4];
 
-    const uint8_t *srcp[4];
-    uint8_t *dstp[4];
+    const void *srcp[4];
+    void *dstp[4];
 
     int src_stride[4];
     int dst_stride[4];
