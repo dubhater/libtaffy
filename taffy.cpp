@@ -454,6 +454,91 @@ void unpack_px10(bleh *args) {
 
 // =================================================
 
+void pack_v210(bleh *args) {
+    int width = args->width[0];
+    int height = args->height[0];
+
+    const uint16_t **srcp = (const uint16_t **)args->srcp;
+    uint32_t *dstp = (uint32_t *)args->dstp[0];
+
+    int src_stride[4] = args->src_stride;
+    // explode if it's not the same as args->dst_stride[0] ?
+    int dst_stride = ((16*((width + 5) / 6) + 127) & ~127)/4;
+
+    for (int y = 0; y < height; y++) {
+        const uint16_t *yline = srcp[0];
+        const uint16_t *uline = srcp[1];
+        const uint16_t *vline = srcp[2];
+        uint32_t *dstline = dstp;
+        for (int x = 0; x < width + 5; x += 6) {
+            dstline[0] = (uline[0] | (yline[0] << 10) | (vline[0] << 20));
+            dstline[1] = (yline[1] | (uline[1] << 10) | (yline[2] << 20));
+            dstline[2] = (vline[1] | (yline[3] << 10) | (uline[2] << 20));
+            dstline[3] = (yline[4] | (vline[2] << 10) | (yline[5] << 20));
+            dstline += 4;
+            yline += 6;
+            uline += 3;
+            vline += 3;
+        }
+        dstp += dst_stride;
+        srcp[0] += src_stride[0] / 2;
+        srcp[1] += src_stride[1] / 2;
+        srcp[2] += src_stride[2] / 2;
+    }
+}
+
+
+void unpack_v210(bleh *args) {
+    int width = args->width[0];
+    int height = args->height[0];
+
+    int src_stride = ((16*((width + 5) / 6) + 127) & ~127)/4;
+    int dst_stride[4] = args->dst_stride;
+
+    const uint32_t *srcp = (const uint32_t *)args->srcp[0];
+    uint16_t **dstp = (uint16_t **)args->dstp;
+
+    const uint32_t mask = 1023; // lowest 10 bits
+
+    for (int y = 0; y < height; y++) {
+        uint16_t *yline = dstp[0];
+        uint16_t *uline = dstp[1];
+        uint16_t *vline = dstp[2];
+        const uint32_t *srcline = srcp;
+
+        for (int x = 0; x < width + 5; x += 6) {
+            uline[0] = srcline[0] & mask;
+            yline[0] = (srcline[0] >> 10) & mask;
+            vline[0] = (srcline[0] >> 20) & mask;
+
+            yline[1] = srcline[1] & mask;
+            uline[1] = (srcline[1] >> 10) & mask;
+            yline[2] = (srcline[1] >> 20) & mask;
+
+            vline[1] = srcline[2] & mask;
+            yline[3] = (srcline[2] >> 10) & mask;
+            uline[2] = (srcline[2] >> 20) & mask;
+
+            yline[4] = srcline[3] & mask;
+            vline[2] = (srcline[3] >> 10) & mask;
+            yline[5] = (srcline[3] >> 20) & mask;
+
+            srcline += 4;
+            yline += 6;
+            uline += 3;
+            vline += 3;
+        }
+
+        srcp += src_stride;
+
+        dstp[0] += dst_stride[0] / 2;
+        dstp[1] += dst_stride[1] / 2;
+        dstp[2] += dst_stride[2] / 2;
+    }
+}
+
+// =================================================
+
 void pack_4444_uint8(bleh *args) {
     pack_4444<uint8_t>(args);
 }
