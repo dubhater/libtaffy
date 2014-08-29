@@ -307,50 +307,70 @@ static void unpack_422_uyvy(bleh *args) {
 
 template <typename T>
 static void pack_nv(bleh *args) {
-    int width = args->width[1];
-    int height = args->height[1];
+    int width[4] = args->width;
+    int height[4] = args->height;
 
     const T **srcp = (const T **)args->srcp;
-    T *dstp = (T *)args->dstp[1];
+    T **dstp = (T **)args->dstp;
 
     int src_stride[4] = args->src_stride;
-    int dst_stride = args->dst_stride[1];
+    int dst_stride[4] = args->dst_stride;
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            dstp[x * 2 + 0] = srcp[1][x];
-            dstp[x * 2 + 1] = srcp[2][x];
+    for (int y = 0; y < height[1]; y++) {
+        for (int x = 0; x < width[1]; x++) {
+            dstp[1][x * 2 + 0] = srcp[1][x];
+            dstp[1][x * 2 + 1] = srcp[2][x];
         }
 
         srcp[1] += src_stride[1] / sizeof(T);
         srcp[2] += src_stride[2] / sizeof(T);
 
-        dstp += dst_stride / sizeof(T);
+        dstp[1] += dst_stride[1] / sizeof(T);
+    }
+
+    if (src_stride[0] == dst_stride[0]) {
+        memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
+    } else {
+        for (int y = 0; y < height[0]; y++) {
+            memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+            srcp[0] += src_stride[0] / sizeof(T);
+            dstp[0] += dst_stride[0] / sizeof(T);
+        }
     }
 }
 
 
 template <typename T>
 static void unpack_nv(bleh *args) {
-    int width = args->width[1];
-    int height = args->height[1];
+    int width[4] = args->width;
+    int height[4] = args->height;
 
-    const T *srcp = (const T *)args->srcp[1];
+    const T **srcp = (const T **)args->srcp;
     T **dstp = (T **)args->dstp;
 
-    int src_stride = args->src_stride[1];
-    int dst_stride = args->dst_stride;
+    int src_stride[4] = args->src_stride;
+    int dst_stride[4] = args->dst_stride;
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            dstp[1][x] = srcp[x * 2 + 0];
-            dstp[2][x] = srcp[x * 2 + 1];
+    for (int y = 0; y < height[1]; y++) {
+        for (int x = 0; x < width[1]; x++) {
+            dstp[1][x] = srcp[1][x * 2 + 0];
+            dstp[2][x] = srcp[1][x * 2 + 1];
         }
 
-        srcp += src_stride / sizeof(T);
+        srcp[1] += src_stride[1] / sizeof(T);
 
         dstp[1] += dst_stride[1] / sizeof(T);
         dstp[2] += dst_stride[2] / sizeof(T);
+    }
+
+    if (src_stride[0] == dst_stride[0]) {
+        memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
+    } else {
+        for (int y = 0; y < height[0]; y++) {
+            memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+            srcp[0] += src_stride[0] / sizeof(T);
+            dstp[0] += dst_stride[0] / sizeof(T);
+        }
     }
 }
 
