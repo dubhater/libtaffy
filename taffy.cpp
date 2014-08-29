@@ -306,8 +306,9 @@ static void unpack_422_uyvy(taffy_param *args) {
 
 // =================================================
 
-template <typename T>
-static void pack_nv(taffy_param *args) {
+template <typename T, bool left_adj, int used_bits>
+static void pack_nvish(taffy_param *args) {
+    const int shift = left_adj ? (sizeof(T) * 8 - used_bits) : 0;
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -319,8 +320,8 @@ static void pack_nv(taffy_param *args) {
 
     for (int y = 0; y < height[1]; y++) {
         for (int x = 0; x < width[1]; x++) {
-            dstp[1][x * 2 + 0] = srcp[1][x];
-            dstp[1][x * 2 + 1] = srcp[2][x];
+            dstp[1][x * 2 + 0] = srcp[1][x] << shift;
+            dstp[1][x * 2 + 1] = srcp[2][x] << shift;
         }
 
         srcp[1] += src_stride[1] / sizeof(T);
@@ -329,20 +330,32 @@ static void pack_nv(taffy_param *args) {
         dstp[1] += dst_stride[1] / sizeof(T);
     }
 
-    if (src_stride[0] == dst_stride[0]) {
-        memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
-    } else {
+    if (shift) {
         for (int y = 0; y < height[0]; y++) {
-            memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+            for (int x = 0; x < width[0]; x++) {
+                dstp[0][x] = srcp[0][x] << shift;
+            }
+
             srcp[0] += src_stride[0] / sizeof(T);
             dstp[0] += dst_stride[0] / sizeof(T);
+        }
+    } else {
+        if (src_stride[0] == dst_stride[0]) {
+            memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
+        } else {
+            for (int y = 0; y < height[0]; y++) {
+                memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+                srcp[0] += src_stride[0] / sizeof(T);
+                dstp[0] += dst_stride[0] / sizeof(T);
+            }
         }
     }
 }
 
 
-template <typename T>
-static void unpack_nv(taffy_param *args) {
+template <typename T, bool left_adj, int used_bits>
+static void unpack_nvish(taffy_param *args) {
+    const int shift = left_adj ? (sizeof(T) * 8 - used_bits) : 0;
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -354,8 +367,8 @@ static void unpack_nv(taffy_param *args) {
 
     for (int y = 0; y < height[1]; y++) {
         for (int x = 0; x < width[1]; x++) {
-            dstp[1][x] = srcp[1][x * 2 + 0];
-            dstp[2][x] = srcp[1][x * 2 + 1];
+            dstp[1][x] = srcp[1][x * 2 + 0] >> shift;
+            dstp[2][x] = srcp[1][x * 2 + 1] >> shift;
         }
 
         srcp[1] += src_stride[1] / sizeof(T);
@@ -364,13 +377,24 @@ static void unpack_nv(taffy_param *args) {
         dstp[2] += dst_stride[2] / sizeof(T);
     }
 
-    if (src_stride[0] == dst_stride[0]) {
-        memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
-    } else {
+    if (shift) {
         for (int y = 0; y < height[0]; y++) {
-            memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+            for (int x = 0; x < width[0]; x++) {
+                dstp[0][x] = srcp[0][x] >> shift;
+            }
+
             srcp[0] += src_stride[0] / sizeof(T);
             dstp[0] += dst_stride[0] / sizeof(T);
+        }
+    } else {
+        if (src_stride[0] == dst_stride[0]) {
+            memcpy(dstp[0], srcp[0], src_stride[0] * height[0]);
+        } else {
+            for (int y = 0; y < height[0]; y++) {
+                memcpy(dstp[0], srcp[0], width[0] * sizeof(T));
+                srcp[0] += src_stride[0] / sizeof(T);
+                dstp[0] += dst_stride[0] / sizeof(T);
+            }
         }
     }
 }
@@ -378,79 +402,23 @@ static void unpack_nv(taffy_param *args) {
 // =================================================
 
 void taffy_pack_px16(taffy_param *args) {
-    pack_nv<uint16_t>(args);
+    pack_nvish<uint16_t, false, 42>(args);
 }
 
 
 void taffy_unpack_px16(taffy_param *args) {
-    unpack_nv<uint16_t>(args);
+    unpack_nvish<uint16_t, false, 42>(args);
 }
 
 // =================================================
 
 void taffy_pack_px10(taffy_param *args) {
-    int width[4] = args->width;
-    int height[4] = args->height;
-
-    const uint16_t **srcp = (const uint16_t **)args->srcp;
-    uint16_t **dstp = (uint16_t **)args->dstp;
-
-    int src_stride[4] = args->src_stride;
-    int dst_stride[4] = args->dst_stride;
-
-    for (int y = 0; y < height[1]; y++) {
-        for (int x = 0; x < width[1]; x++) {
-            dstp[1][x * 2 + 0] = srcp[1][x] << 6;
-            dstp[1][x * 2 + 1] = srcp[2][x] << 6;
-        }
-
-        srcp[1] += src_stride[1] / sizeof(uint16_t);
-        srcp[2] += src_stride[2] / sizeof(uint16_t);
-
-        dstp[1] += dst_stride[1] / sizeof(uint16_t);
-    }
-
-    for (int y = 0; y < height[0]; y++) {
-        for (int x = 0; x < width[0]; x++) {
-            dstp[0][x] = srcp[0][x] << 6;
-        }
-
-        srcp[0] += src_stride[0] / sizeof(uint16_t);
-        dstp[0] += dst_stride[0] / sizeof(uint16_t);
-    }
+    pack_nvish<uint16_t, true, 10>(args);
 }
 
 
 void taffy_unpack_px10(taffy_param *args) {
-    int width[4] = args->width;
-    int height[4] = args->height;
-
-    const uint16_t **srcp = (const uint16_t **)args->srcp;
-    uint16_t **dstp = (uint16_t **)args->dstp;
-
-    int src_stride[4] = args->src_stride;
-    int dst_stride[4] = args->dst_stride;
-
-    for (int y = 0; y < height[1]; y++) {
-        for (int x = 0; x < width[1]; x++) {
-            dstp[1][x] = srcp[1][x * 2 + 0] >> 6;
-            dstp[2][x] = srcp[1][x * 2 + 1] >> 6;
-        }
-
-        srcp[1] += src_stride[1] / sizeof(uint16_t);
-
-        dstp[1] += dst_stride[1] / sizeof(uint16_t);
-        dstp[2] += dst_stride[2] / sizeof(uint16_t);
-    }
-
-    for (int y = 0; y < height[0]; y++) {
-        for (int x = 0; x < width[0]; x++) {
-            dstp[0][x] = srcp[0][x] >> 6;
-        }
-
-        srcp[0] += src_stride[0] / sizeof(uint16_t);
-        dstp[0] += dst_stride[0] / sizeof(uint16_t);
-    }
+    unpack_nvish<uint16_t, true, 10>(args);
 }
 
 // =================================================
@@ -661,29 +629,29 @@ void taffy_unpack_422_uyvy_uint32(taffy_param *args) {
 
 
 void taffy_pack_nv_uint8(taffy_param *args) {
-    pack_nv<uint8_t>(args);
+    pack_nvish<uint8_t, false, 42>(args);
 }
 
 void taffy_unpack_nv_uint8(taffy_param *args) {
-    unpack_nv<uint8_t>(args);
+    unpack_nvish<uint8_t, false, 42>(args);
 }
 
 
 void taffy_pack_nv_uint16(taffy_param *args) {
-    pack_nv<uint16_t>(args);
+    pack_nvish<uint16_t, false, 42>(args);
 }
 
 void taffy_unpack_nv_uint16(taffy_param *args) {
-    unpack_nv<uint16_t>(args);
+    unpack_nvish<uint16_t, false, 42>(args);
 }
 
 
 void taffy_pack_nv_uint32(taffy_param *args) {
-    pack_nv<uint32_t>(args);
+    pack_nvish<uint32_t, false, 42>(args);
 }
 
 void taffy_unpack_nv_uint32(taffy_param *args) {
-    unpack_nv<uint32_t>(args);
+    unpack_nvish<uint32_t, false, 42>(args);
 }
 
 // =================================================
