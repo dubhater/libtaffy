@@ -455,6 +455,11 @@ void taffy_unpack_px10(taffy_param *args) {
 
 // =================================================
 
+int taffy_get_v210_stride(int width) {
+    return (16*((width + 5) / 6) + 127) & ~127;
+}
+
+
 void taffy_pack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
@@ -463,8 +468,7 @@ void taffy_pack_v210(taffy_param *args) {
     uint32_t *dstp = (uint32_t *)args->dstp[0];
 
     int src_stride[4] = args->src_stride;
-    // explode if it's not the same as args->dst_stride[0] ?
-    int dst_stride = ((16*((width + 5) / 6) + 127) & ~127)/4;
+    int dst_stride = args->dst_stride[0];
 
     for (int y = 0; y < height; y++) {
         const uint16_t *yline = srcp[0];
@@ -481,7 +485,7 @@ void taffy_pack_v210(taffy_param *args) {
             uline += 3;
             vline += 3;
         }
-        dstp += dst_stride;
+        dstp += dst_stride / 4;
         srcp[0] += src_stride[0] / 2;
         srcp[1] += src_stride[1] / 2;
         srcp[2] += src_stride[2] / 2;
@@ -493,7 +497,7 @@ void taffy_unpack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
-    int src_stride = ((16*((width + 5) / 6) + 127) & ~127)/4;
+    int src_stride = args->src_stride[0];
     int dst_stride[4] = args->dst_stride;
 
     const uint32_t *srcp = (const uint32_t *)args->srcp[0];
@@ -530,7 +534,7 @@ void taffy_unpack_v210(taffy_param *args) {
             vline += 3;
         }
 
-        srcp += src_stride;
+        srcp += src_stride / 4;
 
         dstp[0] += dst_stride[0] / 2;
         dstp[1] += dst_stride[1] / 2;
