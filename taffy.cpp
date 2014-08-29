@@ -1,7 +1,8 @@
 #include <cstdint>
+#include <cstring>
 
 
-typedef struct {
+typedef struct taffy_param {
     int width[4];
     int height[4];
 
@@ -10,13 +11,13 @@ typedef struct {
 
     int src_stride[4];
     int dst_stride[4];
-} bleh;
+} taffy_param;
 
 
 
 
 template <typename T>
-static void pack_4444(bleh *args) {
+static void pack_4444(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -77,7 +78,7 @@ static void pack_4444(bleh *args) {
 
 
 template <typename T>
-static void unpack_4444(bleh *args) {
+static void unpack_4444(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -137,7 +138,7 @@ static void unpack_4444(bleh *args) {
 // =================================================
 
 template <typename T>
-static void pack_444(bleh *args) {
+static void pack_444(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -164,7 +165,7 @@ static void pack_444(bleh *args) {
 
 
 template <typename T>
-static void unpack_444(bleh *args) {
+static void unpack_444(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -192,7 +193,7 @@ static void unpack_444(bleh *args) {
 // =================================================
 
 template <typename T>
-static void pack_422(bleh *args) {
+static void pack_422(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -220,7 +221,7 @@ static void pack_422(bleh *args) {
 
 
 template <typename T>
-static void unpack_422(bleh *args) {
+static void unpack_422(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -249,7 +250,7 @@ static void unpack_422(bleh *args) {
 // =================================================
 
 template <typename T>
-static void pack_422_uyvy(bleh *args) {
+static void pack_422_uyvy(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -277,7 +278,7 @@ static void pack_422_uyvy(bleh *args) {
 
 
 template <typename T>
-static void unpack_422_uyvy(bleh *args) {
+static void unpack_422_uyvy(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -306,7 +307,7 @@ static void unpack_422_uyvy(bleh *args) {
 // =================================================
 
 template <typename T>
-static void pack_nv(bleh *args) {
+static void pack_nv(taffy_param *args) {
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -341,7 +342,7 @@ static void pack_nv(bleh *args) {
 
 
 template <typename T>
-static void unpack_nv(bleh *args) {
+static void unpack_nv(taffy_param *args) {
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -376,18 +377,18 @@ static void unpack_nv(bleh *args) {
 
 // =================================================
 
-void pack_px16(bleh *args) {
+void taffy_pack_px16(taffy_param *args) {
     pack_nv<uint16_t>(args);
 }
 
 
-void unpack_px16(bleh *args) {
+void taffy_unpack_px16(taffy_param *args) {
     unpack_nv<uint16_t>(args);
 }
 
 // =================================================
 
-void pack_px10(bleh *args) {
+void taffy_pack_px10(taffy_param *args) {
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -420,7 +421,7 @@ void pack_px10(bleh *args) {
 }
 
 
-void unpack_px10(bleh *args) {
+void taffy_unpack_px10(taffy_param *args) {
     int width[4] = args->width;
     int height[4] = args->height;
 
@@ -454,7 +455,7 @@ void unpack_px10(bleh *args) {
 
 // =================================================
 
-void pack_v210(bleh *args) {
+void taffy_pack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -488,7 +489,7 @@ void pack_v210(bleh *args) {
 }
 
 
-void unpack_v210(bleh *args) {
+void taffy_unpack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -539,145 +540,145 @@ void unpack_v210(bleh *args) {
 
 // =================================================
 
-void pack_4444_uint8(bleh *args) {
+void taffy_pack_4444_uint8(taffy_param *args) {
     pack_4444<uint8_t>(args);
 }
 
-void unpack_4444_uint8(bleh *args) {
+void taffy_unpack_4444_uint8(taffy_param *args) {
     unpack_4444<uint8_t>(args);
 }
 
 
-void pack_4444_uint16(bleh *args) {
+void taffy_pack_4444_uint16(taffy_param *args) {
     pack_4444<uint16_t>(args);
 }
 
-void unpack_4444_uint16(bleh *args) {
+void taffy_unpack_4444_uint16(taffy_param *args) {
     unpack_4444<uint16_t>(args);
 }
 
 
-void pack_4444_uint32(bleh *args) {
+void taffy_pack_4444_uint32(taffy_param *args) {
     pack_4444<uint32_t>(args);
 }
 
-void unpack_4444_uint32(bleh *args) {
+void taffy_unpack_4444_uint32(taffy_param *args) {
     unpack_4444<uint32_t>(args);
 }
 
 // =================================================
 
 
-void pack_444_uint8(bleh *args) {
+void taffy_pack_444_uint8(taffy_param *args) {
     pack_444<uint8_t>(args);
 }
 
-void unpack_444_uint8(bleh *args) {
+void taffy_unpack_444_uint8(taffy_param *args) {
     unpack_444<uint8_t>(args);
 }
 
 
-void pack_444_uint16(bleh *args) {
+void taffy_pack_444_uint16(taffy_param *args) {
     pack_444<uint16_t>(args);
 }
 
-void unpack_444_uint16(bleh *args) {
+void taffy_unpack_444_uint16(taffy_param *args) {
     unpack_444<uint16_t>(args);
 }
 
 
-void pack_444_uint32(bleh *args) {
+void taffy_pack_444_uint32(taffy_param *args) {
     pack_444<uint32_t>(args);
 }
 
-void unpack_444_uint32(bleh *args) {
+void taffy_unpack_444_uint32(taffy_param *args) {
     unpack_444<uint32_t>(args);
 }
 
 // =================================================
 
 
-void pack_422_uint8(bleh *args) {
+void taffy_pack_422_uint8(taffy_param *args) {
     pack_422<uint8_t>(args);
 }
 
-void unpack_422_uint8(bleh *args) {
+void taffy_unpack_422_uint8(taffy_param *args) {
     unpack_422<uint8_t>(args);
 }
 
 
-void pack_422_uint16(bleh *args) {
+void taffy_pack_422_uint16(taffy_param *args) {
     pack_422<uint16_t>(args);
 }
 
-void unpack_422_uint16(bleh *args) {
+void taffy_unpack_422_uint16(taffy_param *args) {
     unpack_422<uint16_t>(args);
 }
 
 
-void pack_422_uint32(bleh *args) {
+void taffy_pack_422_uint32(taffy_param *args) {
     pack_422<uint32_t>(args);
 }
 
-void unpack_422_uint32(bleh *args) {
+void taffy_unpack_422_uint32(taffy_param *args) {
     unpack_422<uint32_t>(args);
 }
 
 // =================================================
 
 
-void pack_422_uyvy_uint8(bleh *args) {
+void taffy_pack_422_uyvy_uint8(taffy_param *args) {
     pack_422_uyvy<uint8_t>(args);
 }
 
-void unpack_422_uyvy_uint8(bleh *args) {
+void taffy_unpack_422_uyvy_uint8(taffy_param *args) {
     unpack_422_uyvy<uint8_t>(args);
 }
 
 
-void pack_422_uyvy_uint16(bleh *args) {
+void taffy_pack_422_uyvy_uint16(taffy_param *args) {
     pack_422_uyvy<uint16_t>(args);
 }
 
-void unpack_422_uyvy_uint16(bleh *args) {
+void taffy_unpack_422_uyvy_uint16(taffy_param *args) {
     unpack_422_uyvy<uint16_t>(args);
 }
 
 
-void pack_422_uyvy_uint32(bleh *args) {
+void taffy_pack_422_uyvy_uint32(taffy_param *args) {
     pack_422_uyvy<uint32_t>(args);
 }
 
-void unpack_422_uyvy_uint32(bleh *args) {
+void taffy_unpack_422_uyvy_uint32(taffy_param *args) {
     unpack_422_uyvy<uint32_t>(args);
 }
 
 // =================================================
 
 
-void pack_nv_uint8(bleh *args) {
+void taffy_pack_nv_uint8(taffy_param *args) {
     pack_nv<uint8_t>(args);
 }
 
-void unpack_nv_uint8(bleh *args) {
+void taffy_unpack_nv_uint8(taffy_param *args) {
     unpack_nv<uint8_t>(args);
 }
 
 
-void pack_nv_uint16(bleh *args) {
+void taffy_pack_nv_uint16(taffy_param *args) {
     pack_nv<uint16_t>(args);
 }
 
-void unpack_nv_uint16(bleh *args) {
+void taffy_unpack_nv_uint16(taffy_param *args) {
     unpack_nv<uint16_t>(args);
 }
 
 
-void pack_nv_uint32(bleh *args) {
+void taffy_pack_nv_uint32(taffy_param *args) {
     pack_nv<uint32_t>(args);
 }
 
-void unpack_nv_uint32(bleh *args) {
+void taffy_unpack_nv_uint32(taffy_param *args) {
     unpack_nv<uint32_t>(args);
 }
 
