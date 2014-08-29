@@ -24,7 +24,7 @@ static void pack_4444(taffy_param *args) {
     const T **srcp = (const T **)args->srcp;
     T *dstp = (T *)args->dstp[0];
 
-    int src_stride[4] = args->src_stride;
+    int *src_stride = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
     if (srcp[0] == NULL) {
@@ -86,7 +86,7 @@ static void unpack_4444(taffy_param *args) {
     T **dstp = (T **)args->dstp;
 
     int src_stride = args->src_stride[0];
-    int dst_stride[4] = args->dst_stride;
+    int *dst_stride = args->dst_stride;
 
     if (dstp[0] == NULL) {
         for (int y = 0; y < height; y++) {
@@ -145,7 +145,7 @@ static void pack_444(taffy_param *args) {
     const T **srcp = (const T **)args->srcp;
     T *dstp = (T *)args->dstp[0];
 
-    int src_stride[4] = args->src_stride;
+    int *src_stride = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
     for (int y = 0; y < height; y++) {
@@ -173,7 +173,7 @@ static void unpack_444(taffy_param *args) {
     T **dstp = (T **)args->dstp;
 
     int src_stride = args->src_stride[0];
-    int dst_stride[4] = args->dst_stride;
+    int *dst_stride = args->dst_stride;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -200,7 +200,7 @@ static void pack_422(taffy_param *args) {
     const T **srcp = (const T **)args->srcp;
     T *dstp = (T *)args->dstp[0];
 
-    int src_stride[4] = args->src_stride;
+    int *src_stride = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
     for (int y = 0; y < height; y++) {
@@ -229,7 +229,7 @@ static void unpack_422(taffy_param *args) {
     T **dstp = (T **)args->dstp;
 
     int src_stride = args->src_stride[0];
-    int dst_stride[4] = args->dst_stride;
+    int *dst_stride = args->dst_stride;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 2) {
@@ -257,7 +257,7 @@ static void pack_422_uyvy(taffy_param *args) {
     const T **srcp = (const T **)args->srcp;
     T *dstp = (T *)args->dstp[0];
 
-    int src_stride[4] = args->src_stride;
+    int *src_stride = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
     for (int y = 0; y < height; y++) {
@@ -286,7 +286,7 @@ static void unpack_422_uyvy(taffy_param *args) {
     T **dstp = (T **)args->dstp;
 
     int src_stride = args->src_stride[0];
-    int dst_stride[4] = args->dst_stride;
+    int *dst_stride = args->dst_stride;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 2) {
@@ -309,14 +309,14 @@ static void unpack_422_uyvy(taffy_param *args) {
 template <typename T, bool left_adj, int used_bits>
 static void pack_nvish(taffy_param *args) {
     const int shift = left_adj ? (sizeof(T) * 8 - used_bits) : 0;
-    int width[4] = args->width;
-    int height[4] = args->height;
+    int *width = args->width;
+    int *height = args->height;
 
     const T **srcp = (const T **)args->srcp;
     T **dstp = (T **)args->dstp;
 
-    int src_stride[4] = args->src_stride;
-    int dst_stride[4] = args->dst_stride;
+    int *src_stride = args->src_stride;
+    int *dst_stride = args->dst_stride;
 
     for (int y = 0; y < height[1]; y++) {
         for (int x = 0; x < width[1]; x++) {
@@ -356,14 +356,14 @@ static void pack_nvish(taffy_param *args) {
 template <typename T, bool left_adj, int used_bits>
 static void unpack_nvish(taffy_param *args) {
     const int shift = left_adj ? (sizeof(T) * 8 - used_bits) : 0;
-    int width[4] = args->width;
-    int height[4] = args->height;
+    int *width = args->width;
+    int *height = args->height;
 
     const T **srcp = (const T **)args->srcp;
     T **dstp = (T **)args->dstp;
 
-    int src_stride[4] = args->src_stride;
-    int dst_stride[4] = args->dst_stride;
+    int *src_stride = args->src_stride;
+    int *dst_stride = args->dst_stride;
 
     for (int y = 0; y < height[1]; y++) {
         for (int x = 0; x < width[1]; x++) {
@@ -435,7 +435,7 @@ void taffy_pack_v210(taffy_param *args) {
     const uint16_t **srcp = (const uint16_t **)args->srcp;
     uint32_t *dstp = (uint32_t *)args->dstp[0];
 
-    int src_stride[4] = args->src_stride;
+    int *src_stride = args->src_stride;
     int dst_stride = args->dst_stride[0];
 
     for (int y = 0; y < height; y++) {
@@ -466,7 +466,7 @@ void taffy_unpack_v210(taffy_param *args) {
     int height = args->height[0];
 
     int src_stride = args->src_stride[0];
-    int dst_stride[4] = args->dst_stride;
+    int *dst_stride = args->dst_stride;
 
     const uint32_t *srcp = (const uint32_t *)args->srcp[0];
     uint16_t **dstp = (uint16_t **)args->dstp;
