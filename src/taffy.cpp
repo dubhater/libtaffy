@@ -1,19 +1,7 @@
 #include <cstdint>
 #include <cstring>
 
-
-typedef struct taffy_param {
-    int width[4];
-    int height[4];
-
-    const void *srcp[4];
-    void *dstp[4];
-
-    int src_stride[4];
-    int dst_stride[4];
-} taffy_param;
-
-
+#include "taffy.h"
 
 
 template <typename T>
@@ -401,34 +389,34 @@ static void unpack_nvish(taffy_param *args) {
 
 // =================================================
 
-void taffy_pack_px16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_px16(taffy_param *args) {
     pack_nvish<uint16_t, false, 42>(args);
 }
 
 
-void taffy_unpack_px16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_px16(taffy_param *args) {
     unpack_nvish<uint16_t, false, 42>(args);
 }
 
 // =================================================
 
-void taffy_pack_px10(taffy_param *args) {
+TAFFY_API(void) taffy_pack_px10(taffy_param *args) {
     pack_nvish<uint16_t, true, 10>(args);
 }
 
 
-void taffy_unpack_px10(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_px10(taffy_param *args) {
     unpack_nvish<uint16_t, true, 10>(args);
 }
 
 // =================================================
 
-int taffy_get_v210_stride(int width) {
+TAFFY_API(int) taffy_get_v210_stride(int width) {
     return (16*((width + 5) / 6) + 127) & ~127;
 }
 
 
-void taffy_pack_v210(taffy_param *args) {
+TAFFY_API(void) taffy_pack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -461,7 +449,7 @@ void taffy_pack_v210(taffy_param *args) {
 }
 
 
-void taffy_unpack_v210(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_v210(taffy_param *args) {
     int width = args->width[0];
     int height = args->height[0];
 
@@ -512,145 +500,145 @@ void taffy_unpack_v210(taffy_param *args) {
 
 // =================================================
 
-void taffy_pack_4444_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_pack_4444_uint8(taffy_param *args) {
     pack_4444<uint8_t>(args);
 }
 
-void taffy_unpack_4444_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_4444_uint8(taffy_param *args) {
     unpack_4444<uint8_t>(args);
 }
 
 
-void taffy_pack_4444_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_4444_uint16(taffy_param *args) {
     pack_4444<uint16_t>(args);
 }
 
-void taffy_unpack_4444_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_4444_uint16(taffy_param *args) {
     unpack_4444<uint16_t>(args);
 }
 
 
-void taffy_pack_4444_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_pack_4444_uint32(taffy_param *args) {
     pack_4444<uint32_t>(args);
 }
 
-void taffy_unpack_4444_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_4444_uint32(taffy_param *args) {
     unpack_4444<uint32_t>(args);
 }
 
 // =================================================
 
 
-void taffy_pack_444_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_pack_444_uint8(taffy_param *args) {
     pack_444<uint8_t>(args);
 }
 
-void taffy_unpack_444_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_444_uint8(taffy_param *args) {
     unpack_444<uint8_t>(args);
 }
 
 
-void taffy_pack_444_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_444_uint16(taffy_param *args) {
     pack_444<uint16_t>(args);
 }
 
-void taffy_unpack_444_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_444_uint16(taffy_param *args) {
     unpack_444<uint16_t>(args);
 }
 
 
-void taffy_pack_444_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_pack_444_uint32(taffy_param *args) {
     pack_444<uint32_t>(args);
 }
 
-void taffy_unpack_444_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_444_uint32(taffy_param *args) {
     unpack_444<uint32_t>(args);
 }
 
 // =================================================
 
 
-void taffy_pack_422_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uint8(taffy_param *args) {
     pack_422<uint8_t>(args);
 }
 
-void taffy_unpack_422_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uint8(taffy_param *args) {
     unpack_422<uint8_t>(args);
 }
 
 
-void taffy_pack_422_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uint16(taffy_param *args) {
     pack_422<uint16_t>(args);
 }
 
-void taffy_unpack_422_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uint16(taffy_param *args) {
     unpack_422<uint16_t>(args);
 }
 
 
-void taffy_pack_422_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uint32(taffy_param *args) {
     pack_422<uint32_t>(args);
 }
 
-void taffy_unpack_422_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uint32(taffy_param *args) {
     unpack_422<uint32_t>(args);
 }
 
 // =================================================
 
 
-void taffy_pack_422_uyvy_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uyvy_uint8(taffy_param *args) {
     pack_422_uyvy<uint8_t>(args);
 }
 
-void taffy_unpack_422_uyvy_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uyvy_uint8(taffy_param *args) {
     unpack_422_uyvy<uint8_t>(args);
 }
 
 
-void taffy_pack_422_uyvy_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uyvy_uint16(taffy_param *args) {
     pack_422_uyvy<uint16_t>(args);
 }
 
-void taffy_unpack_422_uyvy_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uyvy_uint16(taffy_param *args) {
     unpack_422_uyvy<uint16_t>(args);
 }
 
 
-void taffy_pack_422_uyvy_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_pack_422_uyvy_uint32(taffy_param *args) {
     pack_422_uyvy<uint32_t>(args);
 }
 
-void taffy_unpack_422_uyvy_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_422_uyvy_uint32(taffy_param *args) {
     unpack_422_uyvy<uint32_t>(args);
 }
 
 // =================================================
 
 
-void taffy_pack_nv_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_pack_nv_uint8(taffy_param *args) {
     pack_nvish<uint8_t, false, 42>(args);
 }
 
-void taffy_unpack_nv_uint8(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_nv_uint8(taffy_param *args) {
     unpack_nvish<uint8_t, false, 42>(args);
 }
 
 
-void taffy_pack_nv_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_pack_nv_uint16(taffy_param *args) {
     pack_nvish<uint16_t, false, 42>(args);
 }
 
-void taffy_unpack_nv_uint16(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_nv_uint16(taffy_param *args) {
     unpack_nvish<uint16_t, false, 42>(args);
 }
 
 
-void taffy_pack_nv_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_pack_nv_uint32(taffy_param *args) {
     pack_nvish<uint32_t, false, 42>(args);
 }
 
-void taffy_unpack_nv_uint32(taffy_param *args) {
+TAFFY_API(void) taffy_unpack_nv_uint32(taffy_param *args) {
     unpack_nvish<uint32_t, false, 42>(args);
 }
 
