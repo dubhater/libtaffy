@@ -376,6 +376,84 @@ static void unpack_nv(bleh *args) {
 
 // =================================================
 
+void pack_px16(bleh *args) {
+    pack_nv<uint16_t>(args);
+}
+
+
+void unpack_px16(bleh *args) {
+    unpack_nv<uint16_t>(args);
+}
+
+// =================================================
+
+void pack_px10(bleh *args) {
+    int width[4] = args->width;
+    int height[4] = args->height;
+
+    const uint16_t **srcp = (const uint16_t **)args->srcp;
+    uint16_t **dstp = (uint16_t **)args->dstp;
+
+    int src_stride[4] = args->src_stride;
+    int dst_stride[4] = args->dst_stride;
+
+    for (int y = 0; y < height[1]; y++) {
+        for (int x = 0; x < width[1]; x++) {
+            dstp[1][x * 2 + 0] = srcp[1][x] << 6;
+            dstp[1][x * 2 + 1] = srcp[2][x] << 6;
+        }
+
+        srcp[1] += src_stride[1] / sizeof(uint16_t);
+        srcp[2] += src_stride[2] / sizeof(uint16_t);
+
+        dstp[1] += dst_stride[1] / sizeof(uint16_t);
+    }
+
+    for (int y = 0; y < height[0]; y++) {
+        for (int x = 0; x < width[0]; x++) {
+            dstp[0][x] = srcp[0][x] << 6;
+        }
+
+        srcp[0] += src_stride[0] / sizeof(uint16_t);
+        dstp[0] += dst_stride[0] / sizeof(uint16_t);
+    }
+}
+
+
+void unpack_px10(bleh *args) {
+    int width[4] = args->width;
+    int height[4] = args->height;
+
+    const uint16_t **srcp = (const uint16_t **)args->srcp;
+    uint16_t **dstp = (uint16_t **)args->dstp;
+
+    int src_stride[4] = args->src_stride;
+    int dst_stride[4] = args->dst_stride;
+
+    for (int y = 0; y < height[1]; y++) {
+        for (int x = 0; x < width[1]; x++) {
+            dstp[1][x] = srcp[1][x * 2 + 0] >> 6;
+            dstp[2][x] = srcp[1][x * 2 + 1] >> 6;
+        }
+
+        srcp[1] += src_stride[1] / sizeof(uint16_t);
+
+        dstp[1] += dst_stride[1] / sizeof(uint16_t);
+        dstp[2] += dst_stride[2] / sizeof(uint16_t);
+    }
+
+    for (int y = 0; y < height[0]; y++) {
+        for (int x = 0; x < width[0]; x++) {
+            dstp[0][x] = srcp[0][x] >> 6;
+        }
+
+        srcp[0] += src_stride[0] / sizeof(uint16_t);
+        dstp[0] += dst_stride[0] / sizeof(uint16_t);
+    }
+}
+
+// =================================================
+
 void pack_4444_uint8(bleh *args) {
     pack_4444<uint8_t>(args);
 }
